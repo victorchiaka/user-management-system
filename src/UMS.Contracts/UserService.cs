@@ -1,22 +1,40 @@
-﻿using UMS.Features;
+﻿using Microsoft.EntityFrameworkCore;
+using UMS.Features;
+using UMS.Persistence;
+using BCrypt.Net;
 
 namespace UMS.Contracts;
 
 public class UserService : IUserService
 {
-    public Task CreateUser(string username, string emailAddress, string passwordHash, DateTime createdAt)
+    private readonly UserDbContext _dbContext;
+
+    public UserService(UserDbContext dbContext)
     {
-        throw new NotImplementedException();
+        this._dbContext = dbContext;
+    }
+    
+    public async Task CreateUser(string username, string emailAddress, string password)
+    {
+        _dbContext.Users.Add(new User
+        {
+            Username = username,
+            EmailAddress = emailAddress,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            CreatedAt = DateTime.UtcNow
+        });
+
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task<User?> GetUserById(long userId)
+    public async Task<User?> GetUserById(long userId)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
     }
 
-    public Task<User?> GetUserByEmail(long emailAddress)
+    public async Task<User?> GetUserByEmail(string emailAddress)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Users.SingleOrDefaultAsync(user => user.EmailAddress == emailAddress);
     }
 
     public Task ChangeUserName(long userId, string newUsername)

@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\UMS.Features\UMS.Features.csproj" />
+      <ProjectReference Include="..\UMS.Persistence\UMS.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

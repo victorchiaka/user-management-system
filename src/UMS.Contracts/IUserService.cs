@@ -4,11 +4,11 @@ namespace UMS.Contracts;
 
 public interface IUserService
 {
-    Task CreateUser(string username, string emailAddress, string passwordHash, DateTime createdAt);
+    Task CreateUser(string username, string emailAddress, string password);
 
     Task<User?> GetUserById(long userId);
     
-    Task<User?> GetUserByEmail(long emailAddress);
+    Task<User?> GetUserByEmail(string emailAddress);
     
     Task ChangeUserName(long userId, string newUsername);
     
