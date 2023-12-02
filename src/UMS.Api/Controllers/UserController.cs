@@ -44,7 +44,7 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound("Wrong email address");
+            return NotFound("User with this email doesn't exist");
         }
         
         if (!_authService.IsVerifiedPassword(updateUsernameDto.Password, user.PasswordHash))
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound("Wrong email address");
+            return NotFound("User with this email doesn't exist");
         }
         
         if (!_authService.IsVerifiedPassword(updateEmailAddressDto.Password, user.PasswordHash))
@@ -72,6 +72,20 @@ public class UserController : ControllerBase
         }
         
         await _userService.ChangeUserEmail(user.Id, updateEmailAddressDto.NewEmailAddress);
+        return Ok();
+    }
+    
+    [HttpPut]
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordDto updatePasswordDto)
+    {
+        User? user = await _userService.GetUserByEmail(updatePasswordDto.EmailAddress);
+
+        if (user is null)
+        {
+            return NotFound("User with this email doesn't exist");
+        }
+        
+        await _userService.ChangeUserPassword(user.Id, _authService.HashPassword(updatePasswordDto.NewPassword));
         return Ok();
     }
 }
