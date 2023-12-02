@@ -2,7 +2,7 @@ using BCrypt;
 
 namespace UMS.Contracts;
 
-public class AuthService: IAuthService
+public class AuthenticationService: IAuthenticationService
 {
     public string HashPassword(string password)
     {
