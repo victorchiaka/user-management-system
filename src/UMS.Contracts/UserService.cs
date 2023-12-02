@@ -65,8 +65,17 @@ public class UserService : IUserService
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task ChangeUserPassword(long userId, string newPassword)
+    public async Task ChangeUserPassword(long userId, string newPasswordHash)
     {
-        throw new NotImplementedException();
+        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.PasswordHash = newPasswordHash;
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
     }
 }
