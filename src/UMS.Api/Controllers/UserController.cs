@@ -55,4 +55,23 @@ public class UserController : ControllerBase
         await _userService.ChangeUserName(user.Id, updateUsernameDto.NewUsername);
         return Ok();
     }
+    
+    [HttpPut]
+    public async Task<IActionResult> UpdateEmailAddress(UpdateEmailAddressDto updateEmailAddressDto)
+    {
+        User? user = await _userService.GetUserByEmail(updateEmailAddressDto.EmailAddress);
+
+        if (user is null)
+        {
+            return NotFound("Wrong email address");
+        }
+        
+        if (!_authService.IsVerifiedPassword(updateEmailAddressDto.Password, user.PasswordHash))
+        {
+            return BadRequest("Incorrect password");
+        }
+        
+        await _userService.ChangeUserEmail(user.Id, updateEmailAddressDto.NewEmailAddress);
+        return Ok();
+    }
 }

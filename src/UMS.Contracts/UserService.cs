@@ -51,9 +51,18 @@ public class UserService : IUserService
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task ChangeUserEmail(long userId, string newEmail)
+    public async Task ChangeUserEmail(long userId, string newEmailAddress)
     {
-        throw new NotImplementedException();
+        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.EmailAddress = newEmailAddress;
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
     }
 
     public Task ChangeUserPassword(long userId, string newPassword)
