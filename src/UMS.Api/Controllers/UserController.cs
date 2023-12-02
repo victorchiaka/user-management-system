@@ -10,12 +10,12 @@ namespace UMS.Api.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly IAuthService _authService;
+    private readonly IAuthenticationService _authenticationService;
     
-    public UserController(IUserService userService, IAuthService authService)
+    public UserController(IUserService userService, IAuthenticationService authenticationService)
     {
         this._userService = userService;
-        this._authService = authService;
+        this._authenticationService = authenticationService;
     }
 
     [HttpPost]
@@ -32,7 +32,7 @@ public class UserController : ControllerBase
             registerUserDto.Username,
             registerUserDto.EmailAddress,
             registerUserDto.Password,
-            _authService.HashPassword(registerUserDto.Password)
+            _authenticationService.HashPassword(registerUserDto.Password)
         );
         return StatusCode(201);
     }
@@ -47,7 +47,7 @@ public class UserController : ControllerBase
             return NotFound("User with this email doesn't exist");
         }
         
-        if (!_authService.IsVerifiedPassword(updateUsernameDto.Password, user.PasswordHash))
+        if (!_authenticationService.IsVerifiedPassword(updateUsernameDto.Password, user.PasswordHash))
         {
             return BadRequest("Incorrect password");
         }
@@ -66,7 +66,7 @@ public class UserController : ControllerBase
             return NotFound("User with this email doesn't exist");
         }
         
-        if (!_authService.IsVerifiedPassword(updateEmailAddressDto.Password, user.PasswordHash))
+        if (!_authenticationService.IsVerifiedPassword(updateEmailAddressDto.Password, user.PasswordHash))
         {
             return BadRequest("Incorrect password");
         }
@@ -85,7 +85,7 @@ public class UserController : ControllerBase
             return NotFound("User with this email doesn't exist");
         }
         
-        await _userService.ChangeUserPassword(user.Id, _authService.HashPassword(updatePasswordDto.NewPassword));
+        await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordDto.NewPassword));
         return Ok();
     }
 }
