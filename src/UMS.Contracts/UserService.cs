@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UMS.Features;
 using UMS.Persistence;
 using BCrypt.Net;
