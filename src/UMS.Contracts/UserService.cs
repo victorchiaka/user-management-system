@@ -14,13 +14,13 @@ public class UserService : IUserService
         this._dbContext = dbContext;
     }
     
-    public async Task CreateUser(string username, string emailAddress, string password)
+    public async Task CreateUser(string username, string emailAddress, string password, string passwordHash)
     {
         _dbContext.Users.Add(new User
         {
             Username = username,
             EmailAddress = emailAddress,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            PasswordHash = passwordHash,
             CreatedAt = DateTime.UtcNow
         });
 
@@ -37,9 +37,18 @@ public class UserService : IUserService
         return await _dbContext.Users.SingleOrDefaultAsync(user => user.EmailAddress == emailAddress);
     }
 
-    public Task ChangeUserName(long userId, string newUsername)
+    public async Task ChangeUserName(long userId, string newUsername)
     {
-        throw new NotImplementedException();
+        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        user.Username = newUsername;
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
     }
 
     public Task ChangeUserEmail(long userId, string newEmail)
