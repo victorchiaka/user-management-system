@@ -34,6 +34,7 @@ public class UserController : ControllerBase
             registerUserDto.Password,
             _authenticationService.HashPassword(registerUserDto.Password)
         );
+        
         return StatusCode(201);
     }
 
@@ -53,7 +54,8 @@ public class UserController : ControllerBase
         }
         
         await _userService.ChangeUserName(user.Id, updateUsernameDto.NewUsername);
-        return Ok();
+        
+        return Ok("Successfully update username");
     }
     
     [HttpPut]
@@ -72,7 +74,8 @@ public class UserController : ControllerBase
         }
         
         await _userService.ChangeUserEmail(user.Id, updateEmailAddressDto.NewEmailAddress);
-        return Ok();
+        
+        return Ok("Successfully updated email");
     }
     
     [HttpPut]
@@ -86,6 +89,22 @@ public class UserController : ControllerBase
         }
         
         await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordDto.NewPassword));
-        return Ok();
+        
+        return Ok("Successfully updated password");
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser(DeleteUserDto deleteUserDto)
+    {
+        User? user = await _userService.GetUserByEmail(deleteUserDto.EmailAddress);
+        
+        if (user is null)
+        {
+            return NotFound("User with this email doesn't exist");
+        }
+
+        await _userService.DeleteUserFromDb(user.Id);
+        
+        return Ok("Successfully deleted user");
     }
 }
