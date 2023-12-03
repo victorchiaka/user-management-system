@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UMS.Features;
 using UMS.Persistence;
-using BCrypt.Net;
 
 namespace UMS.Contracts;
 
@@ -76,6 +75,19 @@ public class UserService : IUserService
 
         user.PasswordHash = newPasswordHash;
         _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteUserFromDb(long userId)
+    {
+        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
+
+        if (user is null)
+        {
+            return;
+        }
+
+        _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync();
     }
 }

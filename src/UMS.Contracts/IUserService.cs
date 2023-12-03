@@ -15,4 +15,6 @@ public interface IUserService
     Task ChangeUserEmail(long userId, string newEmail);
     
     Task ChangeUserPassword(long userId, string newPassword);
+
+    Task DeleteUserFromDb(long userId);
 }
