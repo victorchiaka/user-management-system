@@ -14,6 +14,11 @@ IConfigurationRoot configurationBuilder = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
+builder.Services.AddDbContextFactory<UserDbContext>(options =>
+{
+    options.UseNpgsql(configurationBuilder.GetConnectionString(nameof(UserDbContext)));
+});
+
 string? jwtSecret = configurationBuilder.GetSection("Jwt:Secret").Get<string>();
 string? jwtIssuer = configurationBuilder.GetSection("Jwt:Issuer").Get<string>();
 
@@ -32,11 +37,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddDbContextFactory<UserDbContext>(options =>
-{
-    options.UseNpgsql(configurationBuilder.GetConnectionString(nameof(UserDbContext)));
-});
+builder.Services.AddAuthorization();
 
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -53,12 +56,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseRouting();
-
-app.UseEndpoints(endpoint =>
-{
-    endpoint.MapControllers();
-});
-
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
 app.Run();
