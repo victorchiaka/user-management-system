@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UMS.Api.DTOs;
 using UMS.Contracts;
@@ -5,9 +7,10 @@ using UMS.Features;
 
 namespace UMS.Api.Controllers;
 
-[Route("api/v1/[controller]/[action]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
-public class UserController : ControllerBase
+[Route("api/v1/[controller]/[action]")]
+public class UserController : AbstractController
 {
     private readonly IUserService _userService;
     private readonly IAuthenticationService _authenticationService;
@@ -18,6 +21,7 @@ public class UserController : ControllerBase
         this._authenticationService = authenticationService;
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Register(UserRegisterDto registerUserDto)
     {
@@ -35,12 +39,31 @@ public class UserController : ControllerBase
             _authenticationService.HashPassword(registerUserDto.Password)
         );
         
-        return StatusCode(201);
+        return StatusCode(201, "Successfully registered user");
     }
 
+    [AllowAnonymous]
+    [HttpPost]
+    public async Task<ActionResult<AuthenticationCredentialsDto>> Login(UserLoginDto userLoginDto)
+    {
+        string? jwt = await _authenticationService.AuthenticateUser(userLoginDto.EmailAddress, userLoginDto.Password);
+
+        if (jwt is null)
+        {
+            return BadRequest("Invalid email or password");
+        }
+
+        return Ok(new AuthenticationCredentialsDto { Jwt = jwt });
+}
+    
     [HttpPut]
     public async Task<IActionResult> UpdateUsername(UpdateUsernameDto updateUsernameDto)
     {
+        if (!ContextUserId.HasValue)
+        {
+            return Unauthorized();
+        }
+        
         User? user = await _userService.GetUserByEmail(updateUsernameDto.EmailAddress);
 
         if (user is null)
@@ -61,6 +84,11 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateEmailAddress(UpdateEmailAddressDto updateEmailAddressDto)
     {
+        if (!ContextUserId.HasValue)
+        {
+            return Unauthorized();
+        }
+        
         User? user = await _userService.GetUserByEmail(updateEmailAddressDto.EmailAddress);
 
         if (user is null)
@@ -81,6 +109,11 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdatePassword(UpdatePasswordDto updatePasswordDto)
     {
+        if (!ContextUserId.HasValue)
+        {
+            return Unauthorized();
+        }
+        
         User? user = await _userService.GetUserByEmail(updatePasswordDto.EmailAddress);
 
         if (user is null)
@@ -92,10 +125,15 @@ public class UserController : ControllerBase
         
         return Ok("Successfully updated password");
     }
-
+    
     [HttpDelete]
     public async Task<IActionResult> DeleteUser(DeleteUserDto deleteUserDto)
     {
+        if (!ContextUserId.HasValue)
+        {
+            return Unauthorized();
+        }
+        
         User? user = await _userService.GetUserByEmail(deleteUserDto.EmailAddress);
         
         if (user is null)
