@@ -1,5 +1,6 @@
 using BCrypt;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using UMS.Features;
 
 namespace UMS.Contracts;
@@ -14,7 +15,7 @@ public class AuthenticationService: IAuthenticationService
         this._userService = userService;
         this._configuration = configuration;
     }
-    
+
     public string HashPassword(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
@@ -28,14 +29,19 @@ public class AuthenticationService: IAuthenticationService
     public async Task<string?> AuthenticateUser(string emailAddress, string password)
     {
         User? user = await _userService.GetUserByEmail(emailAddress);
-        
+
         if (user is null || !IsVerifiedPassword(password, user.PasswordHash))
         {
             return null;
         }
 
         string? jwtSecurityToken = await GetJwtToken(user.Id);
-            
+
+        if (jwtSecurityToken.IsNullOrEmpty())
+        {
+            return null;
+        }
+
         return jwtSecurityToken;
     }
 

@@ -22,11 +22,13 @@ public class TokenService: ITokenService
             new("sub", userId.ToString())
         };
         
-        const int expiringInDays = 31;
+        const int expiringInHours = 24;
         
         JwtSecurityToken jwt = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.Now.AddMinutes(expiringInDays),
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            expires: DateTime.Now.AddHours(expiringInHours),
             signingCredentials: GetSigningCredentials(_configuration)
         );
 
