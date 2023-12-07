@@ -50,7 +50,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(swaggerGenOptions =>
 {
-    swaggerGenOptions.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title="User management system", Version = "v1"});
+    swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo { Title="User management system", Version = "v1"});
     swaggerGenOptions.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
