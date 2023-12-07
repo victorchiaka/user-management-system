@@ -1,5 +1,3 @@
-using UMS.Features;
-
 namespace UMS.Contracts;
 
 public interface IAuthenticationService
@@ -8,5 +6,5 @@ public interface IAuthenticationService
     
     bool IsVerifiedPassword(string password, string passwordHash);
 
-    Task<string> AuthenticateUser(string emailAddress, string password);
+    Task<string?> AuthenticateUser(string emailAddress, string password);
 }

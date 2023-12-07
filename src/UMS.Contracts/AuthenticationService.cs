@@ -1,4 +1,3 @@
-using BCrypt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using UMS.Features;
@@ -35,7 +34,7 @@ public class AuthenticationService: IAuthenticationService
             return null;
         }
 
-        string? jwtSecurityToken = await GetJwtToken(user.Id);
+        string? jwtSecurityToken = GetJwtToken(user.Id);
 
         if (jwtSecurityToken.IsNullOrEmpty())
         {
@@ -45,8 +44,8 @@ public class AuthenticationService: IAuthenticationService
         return jwtSecurityToken;
     }
 
-    private async Task<String?> GetJwtToken(long userId)
+    private string? GetJwtToken(long userId)
     {
-        return await new TokenService(_configuration).CreateJwtToken(userId);
+        return new TokenService(_configuration).CreateJwtToken(userId);
     }
 }

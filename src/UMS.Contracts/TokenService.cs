@@ -15,7 +15,7 @@ public class TokenService: ITokenService
         this._configuration = configuration;
     }
     
-    public async Task<string> CreateJwtToken(long userId)
+    public string CreateJwtToken(long userId)
     {
         List<Claim> claims = new List<Claim>
         {
@@ -31,7 +31,7 @@ public class TokenService: ITokenService
             expires: DateTime.Now.AddHours(expiringInHours),
             signingCredentials: GetSigningCredentials(_configuration)
         );
-
+        
         return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
 
