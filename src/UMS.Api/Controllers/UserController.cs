@@ -26,7 +26,7 @@ public class UserController : ControllerBase
 
         if (user is not null)
         {
-            return BadRequest("User not found");
+            return BadRequest("User with this email already exist");
         }
         
         await _userService.CreateUser(
