@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using UMS.Features;
 
 namespace UMS.Contracts;
@@ -33,18 +32,11 @@ public class AuthenticationService: IAuthenticationService
         {
             return null;
         }
-
-        string? jwtSecurityToken = GetJwtToken(user.Id);
-
-        if (jwtSecurityToken.IsNullOrEmpty())
-        {
-            return null;
-        }
-
-        return jwtSecurityToken;
+        
+        return GetJwtToken(user.Id);
     }
 
-    private string? GetJwtToken(long userId)
+    private string GetJwtToken(long userId)
     {
         return new TokenService(_configuration).CreateJwtToken(userId);
     }
