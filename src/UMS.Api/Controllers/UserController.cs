@@ -26,7 +26,7 @@ public class UserController : ControllerBase
 
         if (user is not null)
         {
-            return BadRequest("User with this email already exist");
+            return BadRequest("User not found");
         }
         
         await _userService.CreateUser(
@@ -60,7 +60,7 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound("User with this email doesn't exist");
+            return NotFound("User not found");
         }
         
         if (!_authenticationService.IsVerifiedPassword(updateUsernameRequestDto.Password, user.PasswordHash))
@@ -81,7 +81,7 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound("User with this email doesn't exist");
+            return NotFound("User not found");
         }
         
         if (!_authenticationService.IsVerifiedPassword(updateEmailAddressRequestDto.Password, user.PasswordHash))
@@ -102,12 +102,37 @@ public class UserController : ControllerBase
 
         if (user is null)
         {
-            return NotFound("User with this email doesn't exist");
+            return NotFound("User not found");
         }
         
         await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordRequestDto.NewPassword));
         
         return Ok("Successfully updated password");
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> WhoAmI(WhoAmIRequestDto whoAmIRequestDto)
+    {
+        User? user = await _userService.GetUserByEmail(whoAmIRequestDto.EmailAddress);
+
+        if (user is null)
+        {
+            return NotFound("User not found");
+        }
+
+        if (!_authenticationService.IsVerifiedPassword(whoAmIRequestDto.Password, user.PasswordHash))
+        {
+            return BadRequest("Invalid email or password");
+        }
+        
+        return Ok(new User
+        {
+            Id = user.Id,
+            Username = user.Username,
+            EmailAddress = user.EmailAddress,
+            CreatedAt = user.CreatedAt
+        });
     }
     
     [Authorize]
@@ -118,7 +143,7 @@ public class UserController : ControllerBase
         
         if (user is null)
         {
-            return NotFound("User with this email doesn't exist");
+            return NotFound("User not found");
         }
 
         await _userService.DeleteUserFromDb(user.Id);
