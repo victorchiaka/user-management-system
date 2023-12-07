@@ -1,6 +1,6 @@
 namespace UMS.Api.DTOs;
 
-public class DeleteUserDto
+public class DeleteUserRequestDto
 {
     public string EmailAddress { get; set; } = string.Empty;
 }

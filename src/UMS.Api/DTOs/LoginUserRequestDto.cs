@@ -1,6 +1,6 @@
 namespace UMS.Api.DTOs;
 
-public class UserLoginDto
+public class LoginUserRequestDto
 {
     public string Username { get; set; } = string.Empty;
     
