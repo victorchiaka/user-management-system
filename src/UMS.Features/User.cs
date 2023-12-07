@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace UMS.Features;
 
 public class User
