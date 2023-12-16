@@ -31,6 +31,10 @@
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.3" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <AppSettings>FluentAssertions.TestFramework=xunit2</AppSettings>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\..\src\UMS.Api\UMS.Api.csproj" />
     </ItemGroup>
