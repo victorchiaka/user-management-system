@@ -12,7 +12,7 @@ public class UserService : IUserService
     {
         this._dbContext = dbContext;
     }
-    
+
     public async Task CreateUser(string username, string emailAddress, string password, string passwordHash)
     {
         _dbContext.Users.Add(new User
@@ -78,9 +78,9 @@ public class UserService : IUserService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteUserFromDb(long userId)
+    public async Task DeleteUserFromDb(string emailAddress)
     {
-        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId);
+        User? user = await _dbContext.Users.SingleOrDefaultAsync(user => user.EmailAddress == emailAddress);
 
         if (user is null)
         {
@@ -90,4 +90,5 @@ public class UserService : IUserService
         _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync();
     }
+
 }

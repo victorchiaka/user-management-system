@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UMS.Features;
 

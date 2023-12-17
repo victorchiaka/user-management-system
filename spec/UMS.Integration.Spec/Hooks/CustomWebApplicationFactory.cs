@@ -1,40 +1,52 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using UMS.Contracts;
 using UMS.Persistence;
-
 
 namespace UMS.Integration.Spec.Hooks;
 
 public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
+    public string DefaultUserId { get; set; } = "";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
         {
-            ServiceDescriptor? descriptor = services.SingleOrDefault(
+            var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<UserDbContext>));
 
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
-            
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            
-            services.AddSingleton<DbContextOptions<UserDbContext>>(options =>
+
+            services.AddDbContextFactory<UserDbContext>(options =>
             {
-                var dbContextOptionsBuilder = new DbContextOptionsBuilder<UserDbContext>();
-                dbContextOptionsBuilder.UseInMemoryDatabase("InMemoryDbForTesting");
-                return dbContextOptionsBuilder.Options;
+                options.UseInMemoryDatabase("InMemoryDbForTesting");
             });
 
-            
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var scopedServices = scope.ServiceProvider;
+                var db = scopedServices.GetRequiredService<UserDbContext>();
+
+                db.Database.EnsureCreated();
+
+                Utilities.SeedData(db);
+            }
+
         });
 
-        base.ConfigureWebHost(builder);
+        builder.ConfigureTestServices(services =>
+        {
+
+            services.Configure<TestAuthenticationHandlerOptions>(options => options.DefaultUserId = DefaultUserId);
+
+            services.AddAuthentication(TestAuthenticationHandler.AuthenticationScheme)
+                .AddScheme<TestAuthenticationHandlerOptions, TestAuthenticationHandler>(TestAuthenticationHandler.AuthenticationScheme, options => { });
+        });
     }
 }

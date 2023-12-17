@@ -12,8 +12,8 @@ using UMS.Persistence;
 namespace UMS.Persistence.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20231201211812_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20231216141832_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
