@@ -380,6 +380,46 @@ this.ScenarioInitialize(scenarioInfo);
             await this.ScenarioCleanupAsync();
         }
         
+        [Xunit.SkippableFactAttribute(DisplayName="Retrieve user data using WhoAmI endpoint")]
+        [Xunit.TraitAttribute("FeatureTitle", "UserController")]
+        [Xunit.TraitAttribute("Description", "Retrieve user data using WhoAmI endpoint")]
+        public async System.Threading.Tasks.Task RetrieveUserDataUsingWhoAmIEndpoint()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieve user data using WhoAmI endpoint", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 53
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 54
+    await testRunner.GivenAsync("A user is authenticated with an ID of \"1\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 55
+    await testRunner.WhenAsync("The user accesses the WhoAmI endpoint", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 56
+    await testRunner.ThenAsync("The WhoAmI response status code should be 200 OK", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+                TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Username",
+                            "EmailAddress"});
+                table1.AddRow(new string[] {
+                            "victor",
+                            "victor@mail.com"});
+#line 57
+    await testRunner.AndAsync("The response should contain user data:", ((string)(null)), table1, "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "4.0.0.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : object, Xunit.IAsyncLifetime

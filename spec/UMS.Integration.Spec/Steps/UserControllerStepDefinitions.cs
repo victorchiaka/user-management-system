@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using TechTalk.SpecFlow.Assist;
 using UMS.Api.DTOs;
 using UMS.Integration.Spec.Hooks;
-using Xunit;
 
 namespace UMS.Integration.Spec.Steps;
 
@@ -26,7 +27,7 @@ public sealed class UserControllerStepDefinition
             AllowAutoRedirect = false
         });
         
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzAyODM0MjEwLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUxNjYiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUxNjYifQ.-ABg4nt_y-st3aIT-yxJDA5OpZNQ_nLdaxF6tXcFIXpjqL029wEZ1_CU7aDgH93Fr_6iFzqPromhH65iikHKeQ");
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
     }
 
     [Given(@"A user is authenticated with an ID of ""(.*)""")]
@@ -202,5 +203,37 @@ public sealed class UserControllerStepDefinition
 
         _httpResponseMessage =
             _httpClient.PutAsJsonAsync("api/v1/User/UpdateEmailAddress", updateEmailAddressRequestDto).Result;
+    }
+
+    [When(@"The user accesses the WhoAmI endpoint")]
+    public void WhenTheUserAccessesTheWhoAmIEndpoint()
+    {
+        WhoAmIRequestDto whoAmIRequestDto = new()
+        {
+            EmailAddress = "victor@mail.com",
+            Password = "password"
+        };
+        
+        // _httpResponseMessage = _httpClient.GetAsync("api/v1/User/WhoAmI").Result;
+
+        HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "api/v1/User/WhoAmI");
+        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(whoAmIRequestDto), Encoding.UTF8,
+            "application/json");
+        
+        _httpResponseMessage = _httpClient.SendAsync(httpRequestMessage).Result;
+
+    }
+    
+    [Then(@"The WhoAmI response status code should be (.*) OK")]
+    public void ThenTheWhoAmIResponseStatusCodeShouldBeOk(int expectedStatusCode)
+    {
+        _httpResponseMessage.StatusCode.Should().Be((HttpStatusCode)expectedStatusCode);
+    }
+    
+    [Then(@"The response should contain user data:")]
+    public void AndThenTheResponseShouldContainUserData(Table table)
+    {
+        WhoAmIDto? whoAmIDto = _httpResponseMessage.Content.ReadFromJsonAsync<WhoAmIDto>().Result;
+        whoAmIDto.Should().BeEquivalentTo(table.CreateInstance<WhoAmIDto>());
     }
 }

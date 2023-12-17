@@ -93,22 +93,6 @@ public class UserController : ControllerBase
         
         return Ok("Successfully updated email");
     }
-    
-    [Authorize]
-    [HttpPut]
-    public async Task<IActionResult> UpdatePassword(UpdatePasswordRequestDto updatePasswordRequestDto)
-    {
-        User? user = await _userService.GetUserByEmail(updatePasswordRequestDto.EmailAddress);
-
-        if (user is null)
-        {
-            return NotFound("User not found");
-        }
-        
-        await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordRequestDto.NewPassword));
-        
-        return Ok("Successfully updated password");
-    }
 
     [Authorize]
     [HttpGet]
@@ -126,15 +110,29 @@ public class UserController : ControllerBase
             return BadRequest("Invalid email or password");
         }
         
-        return Ok(new User
+        return Ok(new WhoAmIDto
         {
-            Id = user.Id,
             Username = user.Username,
-            EmailAddress = user.EmailAddress,
-            CreatedAt = user.CreatedAt
+            EmailAddress = user.EmailAddress
         });
     }
-    
+
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordRequestDto updatePasswordRequestDto)
+    {
+        User? user = await _userService.GetUserByEmail(updatePasswordRequestDto.EmailAddress);
+
+        if (user is null)
+        {
+            return NotFound("User not found");
+        }
+        
+        await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordRequestDto.NewPassword));
+        
+        return Ok("Successfully updated password");
+    }
+
     [Authorize]
     [HttpDelete]
     public async Task<IActionResult> DeleteUser(DeleteUserRequestDto deleteUserRequestDto)

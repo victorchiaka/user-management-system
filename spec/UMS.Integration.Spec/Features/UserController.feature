@@ -49,3 +49,11 @@ Scenario: Update password field if a user authenticated
 Scenario: A user that doesn't exist trying to access the UpdatePassword endpoint
     When The user attempts to update password
     Then The response status code should be 404 NotFound
+      
+Scenario: Retrieve user data using WhoAmI endpoint
+    Given A user is authenticated with an ID of "1"
+    When The user accesses the WhoAmI endpoint
+    Then The WhoAmI response status code should be 200 OK
+    And The response should contain user data:
+      | Username | EmailAddress   |
+      | victor  | victor@mail.com |
