@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace UMS.Integration.Spec.Hooks;
 
@@ -25,9 +26,9 @@ public class TestAuthenticationHandler : AuthenticationHandler<TestAuthenticatio
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var claims = new List<Claim> { new Claim(ClaimTypes.Name, "Test user") };
+        List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Name, "Test user") };
 
-        if (Context.Request.Headers.TryGetValue(UserId, out var userId))
+        if (Context.Request.Headers.TryGetValue(UserId, out StringValues userId))
         {
             claims.Add(new Claim(ClaimTypes.NameIdentifier, userId[0]!));
         }
@@ -35,12 +36,12 @@ public class TestAuthenticationHandler : AuthenticationHandler<TestAuthenticatio
         {
             claims.Add(new Claim(ClaimTypes.NameIdentifier, _defaultUserId));
         }
-        
-        var identity = new ClaimsIdentity(claims, AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, AuthenticationScheme);
 
-        var result = AuthenticateResult.Success(ticket);
+        ClaimsIdentity identity = new ClaimsIdentity(claims, AuthenticationScheme);
+        ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+        AuthenticationTicket ticket = new AuthenticationTicket(principal, AuthenticationScheme);
+
+        AuthenticateResult result = AuthenticateResult.Success(ticket);
 
         return Task.FromResult(result);
     }

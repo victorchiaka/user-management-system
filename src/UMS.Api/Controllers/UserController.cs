@@ -12,13 +12,13 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IAuthenticationService _authenticationService;
-    
+
     public UserController(IUserService userService, IAuthenticationService authenticationService)
     {
         this._userService = userService;
         this._authenticationService = authenticationService;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> Register(RegisterUserRequestDto requestRegisterUserDto)
     {
@@ -28,17 +28,17 @@ public class UserController : ControllerBase
         {
             return BadRequest("User with this email already exist");
         }
-        
+
         await _userService.CreateUser(
             requestRegisterUserDto.Username,
             requestRegisterUserDto.EmailAddress,
             requestRegisterUserDto.Password,
             _authenticationService.HashPassword(requestRegisterUserDto.Password)
         );
-        
+
         return StatusCode(201, "Successfully registered user");
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<AuthenticationCredentialsDto>> Login(LoginUserRequestDto loginUserRequestDto)
     {
@@ -51,7 +51,7 @@ public class UserController : ControllerBase
 
         return Ok(new AuthenticationCredentialsDto { Jwt = jwt });
     }
-    
+
     [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateUsername(UpdateUsernameRequestDto updateUsernameRequestDto)
@@ -62,17 +62,17 @@ public class UserController : ControllerBase
         {
             return NotFound("User not found");
         }
-        
+
         if (!_authenticationService.IsVerifiedPassword(updateUsernameRequestDto.Password, user.PasswordHash))
         {
             return BadRequest("Incorrect password");
         }
-        
+
         await _userService.ChangeUserName(user.Id, updateUsernameRequestDto.NewUsername);
-        
+
         return Ok("Successfully update username");
     }
-    
+
     [Authorize]
     [HttpPut]
     public async Task<IActionResult> UpdateEmailAddress(UpdateEmailAddressRequestDto updateEmailAddressRequestDto)
@@ -83,14 +83,14 @@ public class UserController : ControllerBase
         {
             return NotFound("User not found");
         }
-        
+
         if (!_authenticationService.IsVerifiedPassword(updateEmailAddressRequestDto.Password, user.PasswordHash))
         {
             return BadRequest("Incorrect password");
         }
-        
+
         await _userService.ChangeUserEmail(user.Id, updateEmailAddressRequestDto.NewEmailAddress);
-        
+
         return Ok("Successfully updated email");
     }
 
@@ -109,7 +109,7 @@ public class UserController : ControllerBase
         {
             return BadRequest("Invalid email or password");
         }
-        
+
         return Ok(new WhoAmIDto
         {
             Username = user.Username,
@@ -127,9 +127,9 @@ public class UserController : ControllerBase
         {
             return NotFound("User not found");
         }
-        
+
         await _userService.ChangeUserPassword(user.Id, _authenticationService.HashPassword(updatePasswordRequestDto.NewPassword));
-        
+
         return Ok("Successfully updated password");
     }
 
@@ -138,15 +138,15 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DeleteUser(DeleteUserRequestDto deleteUserRequestDto)
     {
         User? user = await _userService.GetUserByEmail(deleteUserRequestDto.EmailAddress);
-        
+
         if (user is null)
         {
             return NotFound("User not found");
         }
 
-        await _userService.DeleteUserFromDb(user.Id);
-        
+        await _userService.DeleteUserFromDb(user.EmailAddress);
+
         return Ok("Successfully deleted user");
     }
-    
+
 }

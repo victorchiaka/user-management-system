@@ -1,4 +1,5 @@
 ﻿Feature: UserController
+
 The Controller that manages everything related to users account
 In order accurately manage everything related to creating users account and overall operations related to the users account
 I want to register user, delete user and perform any other operation related to managing the users account
@@ -21,7 +22,7 @@ Scenario: A user tries to login using an invalid data
     Then The response status code should be 400 Bad Request
     
 Scenario: Update username field if a user is authenticated
-    Given A user is authenticated with an ID of "3"
+    Given A user is authenticated with an ID of "2"
     When The user updates its username
     Then The response status code should be 200 Ok
     
@@ -32,7 +33,7 @@ Scenario: A user that doesn't exist trying to access the UpdateUsername endpoint
     
     
 Scenario: Update Email field if a user is authenticated
-    Given A user is authenticated with an ID of "4"
+    Given A user is authenticated with an ID of "3"
     When The user updates its email address
     Then The response status code should be 200 Ok
 
@@ -57,3 +58,11 @@ Scenario: Retrieve user data using WhoAmI endpoint
     And The response should contain user data:
       | Username | EmailAddress   |
       | victor  | victor@mail.com |
+      
+Scenario: User deleting its account from database
+    Given A user is authenticated with an ID of "3"
+    When The user accesses the DeleteUser endpoint
+
+Scenario: Attempting to delete a user account that does not exist
+    When The attempt to delete an account that does not exist is done
+    Then The response status code should be 404 NotFound
